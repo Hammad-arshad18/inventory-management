@@ -1,0 +1,62 @@
+{
+  "name": "inventory-management-system",
+  "version": "1.0.0",
+  "description": "A comprehensive inventory management system with barcode scanning and receipt generation",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": [
+    "inventory",
+    "management",
+    "electron",
+    "barcode",
+    "pos"
+  ],
+  "author": "Inventory Management System",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.2",
+    "html5-qrcode": "^2.3.8",
+    "jspdf": "^2.5.1",
+    "moment": "^2.30.1",
+    "moment-timezone": "^0.6.0",
+    "sqlite3": "^5.1.6",
+    "uuid": "^9.0.1"
+  },
+  "build": {
+    "appId": "com.inventorymanagement.app",
+    "productName": "Inventory Management System",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icon.png"
+    }
+  }
+}

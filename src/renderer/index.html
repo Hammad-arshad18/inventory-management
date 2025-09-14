@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body class="modern-body">
+    <!-- Modern Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="brand-container">
+                <div class="brand-icon">
+                    <i class="bi bi-grid-3x3-gap-fill"></i>
+                </div>
+                <h4 class="brand-text">InventoryPro</h4>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active" data-tab="dashboard">
+                        <i class="bi bi-grid-1x2"></i>
+                        <span class="nav-text">Dashboard</span>
+                        <div class="nav-indicator"></div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-tab="inventory">
+                        <i class="bi bi-boxes"></i>
+                        <span class="nav-text">Inventory</span>
+                        <div class="nav-indicator"></div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-tab="pos">
+                        <i class="bi bi-cart-check"></i>
+                        <span class="nav-text">Point of Sale</span>
+                        <div class="nav-indicator"></div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-tab="orders">
+                        <i class="bi bi-receipt-cutoff"></i>
+                        <span class="nav-text">Orders</span>
+                        <div class="nav-indicator"></div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-tab="add-stock">
+                        <i class="bi bi-box-seam"></i>
+                        <span class="nav-text">Add Stock</span>
+                        <div class="nav-indicator"></div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-tab="inventory-history">
+                        <i class="bi bi-clock-history"></i>
+                        <span class="nav-text">Inventory History</span>
+                        <div class="nav-indicator"></div>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-tab="settings">
+                        <i class="bi bi-gear"></i>
+                        <span class="nav-text">Settings</span>
+                        <div class="nav-indicator"></div>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <i class="bi bi-person-circle"></i>
+                </div>
+                <div class="user-info">
+                    <div class="user-name">Admin User</div>
+                    <div class="user-role">Administrator</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <div class="login-card">
+                <div class="login-header">
+                    <div class="login-logo">
+                        <i class="bi bi-grid-3x3-gap-fill"></i>
+                        <h2>InventoryPro</h2>
+                    </div>
+                    <p class="login-subtitle">Sign in to your account</p>
+                </div>
+                
+                <form id="loginForm" class="login-form">
+                    <div class="form-group">
+                        <label for="loginEmail" class="form-label">Email Address</label>
+                        <input type="email" id="loginEmail" class="form-control" 
+                               placeholder="admin@webo-save.com" required value="admin@webo-save.com" disabled readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="loginPassword" class="form-label">Password</label>
+                        <div class="password-input-group">
+                            <input type="password" id="loginPassword" class="form-control" 
+                                   placeholder="Enter your password" required>
+                            <button type="button" class="password-toggle" id="togglePassword">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" id="rememberMe" class="form-check-input">
+                            <label for="rememberMe" class="form-check-label">Keep me signed in</label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="login-btn" id="loginBtn">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>
+                        Sign In
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content" id="mainContent" style="display: none;">
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-left">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="breadcrumb-container">
+                    <h1 class="page-title" id="pageTitle">Dashboard</h1>
+                    <nav class="breadcrumb-nav">
+                        <span class="breadcrumb-item active" id="breadcrumb">Overview</span>
+                    </nav>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <div class="search-container">
+                    <i class="bi bi-search search-icon"></i>
+                    <input type="text" class="search-input" placeholder="Search anything..." id="globalSearch">
+                </div>
+                
+                <div class="header-actions">
+                    <button class="btn btn-icon" id="refreshBtn" data-bs-toggle="tooltip" title="Refresh">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                    
+                    <div class="notification-container">
+                        <button class="btn btn-icon notification-btn" data-bs-toggle="tooltip" title="Notifications">
+                            <i class="bi bi-bell"></i>
+                            <span class="notification-badge" id="notificationBadge">3</span>
+                        </button>
+                    </div>
+                    
+                    <button class="btn btn-icon" id="logoutBtn" data-bs-toggle="tooltip" title="Logout">
+                        <i class="bi bi-box-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Container -->
+        <div class="content-container">
+
+    <div class="container-fluid py-3">
+        <!-- Dashboard Tab -->
+        <div id="dashboard-tab" class="tab-content active">
+            <!-- Modern Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card stat-card-blue">
+                    <div class="stat-card-content">
+                        <div class="stat-icon">
+                            <i class="bi bi-boxes"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 class="stat-value" id="totalItems">-</h3>
+                            <p class="stat-label">Total Items</p>
+                            <div class="stat-trend">
+                                <i class="bi bi-arrow-up"></i>
+                                <span>+12% from last month</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card-bg">
+                        <i class="bi bi-boxes"></i>
+                    </div>
+                </div>
+
+                <div class="stat-card stat-card-green">
+                    <div class="stat-card-content">
+                        <div class="stat-icon">
+                            <i class="bi bi-currency-dollar"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 class="stat-value" id="totalValue">-</h3>
+                            <p class="stat-label">Total Value</p>
+                            <div class="stat-trend">
+                                <i class="bi bi-arrow-up"></i>
+                                <span>+8% from last month</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card-bg">
+                        <i class="bi bi-currency-dollar"></i>
+                    </div>
+                </div>
+
+                <div class="stat-card stat-card-orange">
+                    <div class="stat-card-content">
+                        <div class="stat-icon">
+                            <i class="bi bi-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 class="stat-value" id="lowStockCount">-</h3>
+                            <p class="stat-label">Low Stock Items</p>
+                            <div class="stat-trend">
+                                <i class="bi bi-arrow-down"></i>
+                                <span>-3% from last week</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card-bg">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </div>
+                </div>
+
+                <div class="stat-card stat-card-purple">
+                    <div class="stat-card-content">
+                        <div class="stat-icon">
+                            <i class="bi bi-receipt"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 class="stat-value" id="todayOrders">-</h3>
+                            <p class="stat-label">Today's Orders</p>
+                            <div class="stat-trend">
+                                <i class="bi bi-arrow-up"></i>
+                                <span>+15% from yesterday</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card-bg">
+                        <i class="bi bi-receipt"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modern Info Cards -->
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="modern-card">
+                        <div class="modern-card-header">
+                            <h5 class="modern-card-title">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                Low Stock Alerts
+                            </h5>
+                        </div>
+                        <div class="modern-card-body">
+                            <div id="lowStockItems">
+                                <div class="d-flex align-items-center justify-content-center" style="min-height: 120px;">
+                                    <div class="loading-spinner"></div>
+                                    <span class="ms-2 text-secondary">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="modern-card">
+                        <div class="modern-card-header">
+                            <h5 class="modern-card-title">
+                                <i class="bi bi-clock-history"></i>
+                                Recent Activity
+                            </h5>
+                        </div>
+                        <div class="modern-card-body">
+                            <div id="recentOrders">
+                                <div class="d-flex align-items-center justify-content-center" style="min-height: 120px;">
+                                    <div class="loading-spinner"></div>
+                                    <span class="ms-2 text-secondary">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Tab -->
+        <div id="inventory-tab" class="tab-content">
+            <!-- Modern Search Bar -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="search-container flex-grow-1 me-4">
+                    <i class="bi bi-search search-icon"></i>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search items by name, barcode, or category...">
+                </div>
+                <button class="btn-modern btn-primary" id="addItemBtn">
+                    <i class="bi bi-plus-lg"></i>
+                    Add New Item
+                </button>
+            </div>
+
+            <!-- Modern Table -->
+            <div class="modern-table-container">
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th>Item Details</th>
+                            <th>Barcode</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventoryTable">
+                        <tr>
+                            <td colspan="7" class="text-center py-5">
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <div class="loading-spinner"></div>
+                                    <span class="ms-2 text-secondary">Loading inventory...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Point of Sale Tab -->
+        <div id="pos-tab" class="tab-content">
+            <div class="row g-4">
+                <!-- Scanner Section -->
+                <div class="col-lg-8">
+                    <div class="modern-card">
+                        <div class="modern-card-header">
+                            <h5 class="modern-card-title">
+                                <i class="bi bi-upc-scan"></i>
+                                Barcode Scanner & Item Search
+                            </h5>
+                        </div>
+                        <div class="modern-card-body">
+                            <!-- Barcode Input -->
+                            <div class="d-flex gap-3 mb-4">
+                                <div class="flex-grow-1">
+                                    <input type="text" class="modern-form-control" id="barcodeInput" 
+                                           placeholder="Scan or enter barcode / search item name...">
+                                </div>
+                                <button class="btn-modern btn-primary" type="button" id="scanBtn">
+                                    <i class="bi bi-camera"></i> Camera Scan
+                                </button>
+                            </div>
+                            
+                            <!-- Scanner Container -->
+                            <div id="scannerContainer" class="d-none mb-4">
+                                <div class="border border-2 border-dashed rounded p-3 text-center bg-light">
+                                    <div id="reader" style="width: 100%; height: 300px; border-radius: 8px; overflow: hidden;"></div>
+                                    <button class="btn-modern btn-secondary mt-3" id="stopScanBtn">
+                                        <i class="bi bi-stop-circle"></i> Stop Scanner
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Selected Item Display -->
+                            <div id="selectedItem" class="d-none">
+                                <div class="modern-card bg-light border">
+                                    <div class="modern-card-body">
+                                        <div class="d-flex align-items-start gap-4">
+                                            <div class="flex-grow-1">
+                                                <h6 class="fw-bold text-primary mb-2" id="itemName">Item Name</h6>
+                                                <div class="row g-3 mb-3">
+                                                    <div class="col-sm-4">
+                                                        <label class="form-label text-secondary small">Price</label>
+                                                        <div class="fs-5 fw-bold text-success"><span id="itemPrice">0.00</span></div>
+                                                    </div>
+                                                    <div class="col-sm-4">
+                                                        <label class="form-label text-secondary small">Available</label>
+                                                        <div class="fs-6 fw-bold"><span id="itemQuantity">0</span> units</div>
+                                                    </div>
+                                                    <div class="col-sm-4">
+                                                        <label class="form-label text-secondary small">Category</label>
+                                                        <div class="fs-6" id="itemCategory">-</div>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex gap-3 align-items-end">
+                                                    <div style="width: 120px;">
+                                                        <label class="form-label text-secondary small">Quantity</label>
+                                                        <input type="number" class="modern-form-control" id="orderQuantity" 
+                                                               min="1" value="1" placeholder="Qty">
+                                                    </div>
+                                                    <button class="btn-modern btn-success" id="addToCartBtn">
+                                                        <i class="bi bi-cart-plus"></i> Add to Cart
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="text-end">
+                                                <button class="btn-modern btn-sm btn-secondary" onclick="app.clearCurrentItem()">
+                                                    <i class="bi bi-x"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Quick Search Results -->
+                            <div id="searchResults" class="d-none mt-4">
+                                <h6 class="text-secondary mb-3">Search Results:</h6>
+                                <div id="searchResultsList" class="d-flex flex-column gap-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Shopping Cart Section -->
+                <div class="col-lg-4">
+                    <div class="modern-card h-100">
+                        <div class="modern-card-header d-flex justify-content-between align-items-center">
+                            <h5 class="modern-card-title mb-0">
+                                <i class="bi bi-cart3"></i>
+                                Shopping Cart
+                            </h5>
+                            <button class="btn-modern btn-sm btn-danger" id="clearCartBtn" title="Clear Cart">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                        <div class="modern-card-body d-flex flex-column">
+                            <!-- Cart Items -->
+                            <div id="cartItems" class="flex-grow-1 mb-4" style="min-height: 200px; max-height: 400px; overflow-y: auto;">
+                                <div class="text-center text-muted py-4">
+                                    <i class="bi bi-cart-x fs-1 mb-3"></i>
+                                    <h6 class="text-secondary">Cart is empty</h6>
+                                    <p class="small text-light mb-0">Scan items to get started</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Customer Information -->
+                            <div class="border-top pt-4 mb-4">
+                                <h6 class="text-secondary mb-3">Customer Information</h6>
+                                <div class="modern-form-group">
+                                    <label class="modern-form-label">Customer Name (Optional)</label>
+                                    <input type="text" class="modern-form-control" id="customerName" 
+                                           placeholder="Enter customer name">
+                                </div>
+                                <div class="modern-form-group">
+                                    <label class="modern-form-label">Customer Phone (Optional)</label>
+                                    <input type="text" class="modern-form-control" id="customerPhone" 
+                                           placeholder="Enter phone number">
+                                </div>
+                            </div>
+                            
+                            <!-- Order Summary -->
+                            <div class="border-top pt-4">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-secondary">Subtotal:</span>
+                                    <span class="fw-bold" id="subtotal">0.00</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2" id="taxRow">
+                                    <span class="text-secondary" id="taxLabel">Tax:</span>
+                                    <span class="fw-bold" id="tax">0.00</span>
+                                </div>
+                                <div class="border-top pt-2 mb-4">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="fs-5 fw-bold">Total:</span>
+                                        <span class="fs-5 fw-bold text-success" id="total">0.00</span>
+                                    </div>
+                                </div>
+                                
+                                <button class="btn-modern btn-success w-100 btn-lg" id="checkoutBtn" disabled>
+                                    <i class="bi bi-credit-card"></i> Complete Sale
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Tab -->
+        <div id="orders-tab" class="tab-content">
+            <!-- Orders Filter Section -->
+            <div class="modern-card mb-4">
+                <div class="modern-card-header">
+                    <h6 class="modern-card-title">
+                        <i class="bi bi-funnel me-2"></i>
+                        Filter Orders
+                    </h6>
+                </div>
+                <div class="modern-card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="orderSearchInput" class="form-label">Search by Order Number</label>
+                            <div class="position-relative">
+                                <input type="text" class="form-control modern-form-control" 
+                                       id="orderSearchInput" placeholder="Enter order number...">
+                                <i class="bi bi-search position-absolute" 
+                                   style="right: 12px; top: 50%; transform: translateY(-50%); color: #6c757d;"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="orderDateFrom" class="form-label">From Date</label>
+                            <input type="date" class="form-control modern-form-control" id="orderDateFrom">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="orderDateTo" class="form-label">To Date</label>
+                            <input type="date" class="form-control modern-form-control" id="orderDateTo">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary modern-btn" id="filterOrdersBtn">
+                                    <i class="bi bi-search me-1"></i>
+                                    Filter
+                                </button>
+                                <button type="button" class="btn btn-secondary modern-btn" id="clearOrderFiltersBtn">
+                                    <i class="bi bi-x-circle me-1"></i>
+                                    Clear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <div class="d-flex gap-2 flex-wrap">
+                                <button type="button" class="btn btn-outline-primary btn-sm" id="filterTodayBtn">Today</button>
+                                <button type="button" class="btn btn-outline-primary btn-sm" id="filterYesterdayBtn">Yesterday</button>
+                                <button type="button" class="btn btn-outline-primary btn-sm" id="filterThisWeekBtn">This Week</button>
+                                <button type="button" class="btn btn-primary btn-sm" id="filterThisMonthBtn">This Month</button>
+                                <button type="button" class="btn btn-outline-primary btn-sm" id="filterLastMonthBtn">Last Month</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Table -->
+            <div class="modern-card">
+                <div class="modern-card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="modern-card-title">
+                            <i class="bi bi-receipt-cutoff me-2"></i>
+                            Orders <span id="ordersCount" class="badge bg-primary ms-2">0</span>
+                        </h6>
+                        <div class="text-secondary" id="ordersDateRange"></div>
+                    </div>
+                </div>
+                <div class="modern-card-body">
+                    <div class="table-container">
+                        <table class="modern-table">
+                            <thead>
+                                <tr>
+                                    <th>Order #</th>
+                                    <th>Customer</th>
+                                    <th>Items</th>
+                                    <th>Total</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTable">
+                                <tr>
+                                    <td colspan="6" class="text-center py-5">
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <div class="loading-spinner"></div>
+                                            <span class="ms-2 text-secondary">Loading orders...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Stock Tab -->
+        <div id="add-stock-tab" class="tab-content">
+            <!-- Search and Actions Section -->
+            <div class="modern-card mb-4">
+                <div class="modern-card-header">
+                    <h6 class="modern-card-title">
+                        <i class="bi bi-funnel me-2"></i>
+                        Search & Select Items
+                    </h6>
+                </div>
+                <div class="modern-card-body">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label for="stockSearchInput" class="form-label">Search Items</label>
+                            <div class="position-relative">
+                                <input type="text" class="form-control modern-form-control" 
+                                       id="stockSearchInput" placeholder="Search by name, barcode, or category...">
+                                <i class="bi bi-search position-absolute" 
+                                   style="right: 12px; top: 50%; transform: translateY(-50%); color: #6c757d;"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary modern-btn flex-fill" id="addStockBtn">
+                                    <i class="bi bi-plus-circle me-1"></i>
+                                    Add Stock
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary modern-btn" id="clearStockFormBtn">
+                                    <i class="bi bi-arrow-clockwise me-1"></i>
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="form-check">
+                                    <input type="checkbox" id="selectAllStockItems" class="form-check-input">
+                                    <label class="form-check-label" for="selectAllStockItems">
+                                        Select All Items
+                                    </label>
+                                </div>
+                                <div class="text-secondary">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Select items and enter quantities to add stock
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Items Table Section -->
+            <div class="modern-card">
+                <div class="modern-card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="modern-card-title">
+                            <i class="bi bi-box-seam me-2"></i>
+                            Items <span id="stockItemsCount" class="badge bg-primary ms-2">0</span>
+                        </h6>
+                        <div class="text-secondary">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            Enter quantities in the "Add Quantity" column
+                        </div>
+                    </div>
+                </div>
+                <div class="modern-card-body">
+                    <div class="table-container">
+                        <table class="modern-table">
+                            <thead>
+                                <tr>
+                                    <th width="5%" class="text-center">
+                                        <i class="bi bi-check-square"></i>
+                                    </th>
+                                    <th width="15%">Barcode</th>
+                                    <th width="25%">Item Name</th>
+                                    <th width="15%">Category</th>
+                                    <th width="12%" class="text-center">Current Stock</th>
+                                    <th width="15%" class="text-center">Add Quantity</th>
+                                    <th width="13%" class="text-center">New Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stockItemsTable">
+                                <tr>
+                                    <td colspan="7" class="text-center py-5">
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <div class="loading-spinner"></div>
+                                            <span class="ms-2 text-secondary">Loading items...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory History Tab -->
+        <div id="inventory-history-tab" class="tab-content">
+            <!-- History Filter Section -->
+            <div class="modern-card mb-4">
+                <div class="modern-card-header">
+                    <h6 class="modern-card-title">
+                        <i class="bi bi-funnel me-2"></i>
+                        Filter History
+                    </h6>
+                </div>
+                <div class="modern-card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label for="historySearchInput" class="form-label">Search Items</label>
+                            <div class="position-relative">
+                                <input type="text" class="form-control modern-form-control" 
+                                       id="historySearchInput" placeholder="Search by item name...">
+                                <i class="bi bi-search position-absolute" 
+                                   style="right: 12px; top: 50%; transform: translateY(-50%); color: #6c757d;"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="historyTypeFilter" class="form-label">Type</label>
+                            <select class="form-control modern-form-control" id="historyTypeFilter">
+                                <option value="">All Types</option>
+                                <option value="in">Stock In</option>
+                                <option value="out">Stock Out</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="historyDateFrom" class="form-label">From Date</label>
+                            <input type="date" class="form-control modern-form-control" id="historyDateFrom">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="historyDateTo" class="form-label">To Date</label>
+                            <input type="date" class="form-control modern-form-control" id="historyDateTo">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary modern-btn" id="filterHistoryBtn">
+                                    <i class="bi bi-search me-1"></i>
+                                    Filter
+                                </button>
+                                <button type="button" class="btn btn-secondary modern-btn" id="clearHistoryFiltersBtn">
+                                    <i class="bi bi-x-circle me-1"></i>
+                                    Clear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Table -->
+            <div class="modern-card">
+                <div class="modern-card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="modern-card-title">
+                            <i class="bi bi-clock-history me-2"></i>
+                            Inventory History <span id="historyCount" class="badge bg-primary ms-2">0</span>
+                        </h6>
+                        <div class="text-secondary" id="historyDateRange"></div>
+                    </div>
+                </div>
+                <div class="modern-card-body">
+                    <div class="table-container">
+                        <table class="modern-table inventory-history-table">
+                            <thead>
+                                <tr>
+                                    <th width="18%">
+                                        <i class="bi bi-calendar-event me-1"></i>
+                                        Date & Time
+                                    </th>
+                                    <th width="20%">
+                                        <i class="bi bi-box me-1"></i>
+                                        Item Name
+                                    </th>
+                                    <th width="12%">
+                                        <i class="bi bi-upc-scan me-1"></i>
+                                        Barcode
+                                    </th>
+                                    <th width="10%" class="text-center">
+                                        <i class="bi bi-arrow-left-right me-1"></i>
+                                        Type
+                                    </th>
+                                    <th width="10%" class="text-center">
+                                        <i class="bi bi-hash me-1"></i>
+                                        Quantity
+                                    </th>
+                                    <th width="10%" class="text-center">
+                                        <i class="bi bi-arrow-down me-1"></i>
+                                        Previous
+                                    </th>
+                                    <th width="10%" class="text-center">
+                                        <i class="bi bi-arrow-up me-1"></i>
+                                        New Stock
+                                    </th>
+                                    <th width="10%">
+                                        <i class="bi bi-link-45deg me-1"></i>
+                                        Reference
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryHistoryTable">
+                                <tr>
+                                    <td colspan="8" class="text-center py-5">
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <div class="loading-spinner"></div>
+                                            <span class="ms-2 text-secondary">Loading history...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings-tab" class="tab-content">
+            <div class="modern-card">
+                <div class="modern-card-header">
+                    <h5 class="modern-card-title">
+                        <i class="bi bi-gear me-2"></i>
+                        System Settings
+                    </h5>
+                </div>
+                <div class="modern-card-body">
+                    <form id="settingsForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <label for="companyName" class="form-label">Company Name</label>
+                                    <input type="text" class="form-control modern-form-control" id="companyName" 
+                                           placeholder="Enter company name" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <label for="trnNumber" class="form-label">TRN Number</label>
+                                    <input type="text" class="form-control modern-form-control" id="trnNumber" 
+                                           placeholder="Enter TRN number">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <label for="currencyCode" class="form-label">Currency Code</label>
+                                    <select class="form-select modern-form-control" id="currencyCode" required>
+                                        <option value="">Select Currency</option>
+                                        <option value="$">USD ($)</option>
+                                        <option value="€">EUR (€)</option>
+                                        <option value="£">GBP (£)</option>
+                                        <option value="¥">JPY (¥)</option>
+                                        <option value="C$">CAD (C$)</option>
+                                        <option value="A$">AUD (A$)</option>
+                                        <option value="CHF">CHF (CHF)</option>
+                                        <option value="¥">CNY (¥)</option>
+                                        <option value="₹">INR (₹)</option>
+                                        <option value="د.إ">AED (د.إ)</option>
+                                        <option value="؋">AFN (؋)</option>
+                                        <option value="L">ALL (L)</option>
+                                        <option value="֏">AMD (֏)</option>
+                                        <option value="ƒ">ANG (ƒ)</option>
+                                        <option value="Kz">AOA (Kz)</option>
+                                        <option value="$">ARS ($)</option>
+                                        <option value="ƒ">AWG (ƒ)</option>
+                                        <option value="₼">AZN (₼)</option>
+                                        <option value="KM">BAM (KM)</option>
+                                        <option value="$">BBD ($)</option>
+                                        <option value="৳">BDT (৳)</option>
+                                        <option value="лв">BGN (лв)</option>
+                                        <option value=".د.ب">BHD (.د.ب)</option>
+                                        <option value="FBu">BIF (FBu)</option>
+                                        <option value="$">BMD ($)</option>
+                                        <option value="$">BND ($)</option>
+                                        <option value="Bs.">BOB (Bs.)</option>
+                                        <option value="R$">BRL (R$)</option>
+                                        <option value="$">BSD ($)</option>
+                                        <option value="Nu.">BTN (Nu.)</option>
+                                        <option value="P">BWP (P)</option>
+                                        <option value="Br">BYN (Br)</option>
+                                        <option value="BZ$">BZD (BZ$)</option>
+                                        <option value="FC">CDF (FC)</option>
+                                        <option value="$">CLP ($)</option>
+                                        <option value="$">COP ($)</option>
+                                        <option value="₡">CRC (₡)</option>
+                                        <option value="₱">CUP (₱)</option>
+                                        <option value="$">CVE ($)</option>
+                                        <option value="Kč">CZK (Kč)</option>
+                                        <option value="Fdj">DJF (Fdj)</option>
+                                        <option value="kr">DKK (kr)</option>
+                                        <option value="RD$">DOP (RD$)</option>
+                                        <option value="د.ج">DZD (د.ج)</option>
+                                        <option value="£">EGP (£)</option>
+                                        <option value="Nfk">ERN (Nfk)</option>
+                                        <option value="Br">ETB (Br)</option>
+                                        <option value="$">FJD ($)</option>
+                                        <option value="£">FKP (£)</option>
+                                        <option value="kr">FOK (kr)</option>
+                                        <option value="₾">GEL (₾)</option>
+                                        <option value="£">GGP (£)</option>
+                                        <option value="₵">GHS (₵)</option>
+                                        <option value="£">GIP (£)</option>
+                                        <option value="D">GMD (D)</option>
+                                        <option value="FG">GNF (FG)</option>
+                                        <option value="Q">GTQ (Q)</option>
+                                        <option value="$">GYD ($)</option>
+                                        <option value="$">HKD ($)</option>
+                                        <option value="L">HNL (L)</option>
+                                        <option value="kn">HRK (kn)</option>
+                                        <option value="G">HTG (G)</option>
+                                        <option value="Ft">HUF (Ft)</option>
+                                        <option value="Rp">IDR (Rp)</option>
+                                        <option value="₪">ILS (₪)</option>
+                                        <option value="£">IMP (£)</option>
+                                        <option value="ع.د">IQD (ع.د)</option>
+                                        <option value="﷼">IRR (﷼)</option>
+                                        <option value="kr">ISK (kr)</option>
+                                        <option value="£">JEP (£)</option>
+                                        <option value="J$">JMD (J$)</option>
+                                        <option value="JD">JOD (JD)</option>
+                                        <option value="KSh">KES (KSh)</option>
+                                        <option value="лв">KGS (лв)</option>
+                                        <option value="៛">KHR (៛)</option>
+                                        <option value="$">KID ($)</option>
+                                        <option value="CF">KMF (CF)</option>
+                                        <option value="₩">KRW (₩)</option>
+                                        <option value="د.ك">KWD (د.ك)</option>
+                                        <option value="$">KYD ($)</option>
+                                        <option value="₸">KZT (₸)</option>
+                                        <option value="₭">LAK (₭)</option>
+                                        <option value="£">LBP (£)</option>
+                                        <option value="₨">LKR (₨)</option>
+                                        <option value="$">LRD ($)</option>
+                                        <option value="L">LSL (L)</option>
+                                        <option value="ل.د">LYD (ل.د)</option>
+                                        <option value="د.م.">MAD (د.م.)</option>
+                                        <option value="L">MDL (L)</option>
+                                        <option value="Ar">MGA (Ar)</option>
+                                        <option value="ден">MKD (ден)</option>
+                                        <option value="K">MMK (K)</option>
+                                        <option value="₮">MNT (₮)</option>
+                                        <option value="MOP$">MOP (MOP$)</option>
+                                        <option value="UM">MRU (UM)</option>
+                                        <option value="₨">MUR (₨)</option>
+                                        <option value="Rf">MVR (Rf)</option>
+                                        <option value="MK">MWK (MK)</option>
+                                        <option value="$">MXN ($)</option>
+                                        <option value="RM">MYR (RM)</option>
+                                        <option value="MT">MZN (MT)</option>
+                                        <option value="$">NAD ($)</option>
+                                        <option value="₦">NGN (₦)</option>
+                                        <option value="C$">NIO (C$)</option>
+                                        <option value="kr">NOK (kr)</option>
+                                        <option value="₨">NPR (₨)</option>
+                                        <option value="$">NZD ($)</option>
+                                        <option value="﷼">OMR (﷼)</option>
+                                        <option value="B/.">PAB (B/.)</option>
+                                        <option value="S/.">PEN (S/.)</option>
+                                        <option value="K">PGK (K)</option>
+                                        <option value="₱">PHP (₱)</option>
+                                        <option value="₨">PKR (₨)</option>
+                                        <option value="zł">PLN (zł)</option>
+                                        <option value="₲">PYG (₲)</option>
+                                        <option value="﷼">QAR (﷼)</option>
+                                        <option value="lei">RON (lei)</option>
+                                        <option value="Дин.">RSD (Дин.)</option>
+                                        <option value="₽">RUB (₽)</option>
+                                        <option value="R₣">RWF (R₣)</option>
+                                        <option value="﷼">SAR (﷼)</option>
+                                        <option value="$">SBD ($)</option>
+                                        <option value="₨">SCR (₨)</option>
+                                        <option value="ج.س.">SDG (ج.س.)</option>
+                                        <option value="kr">SEK (kr)</option>
+                                        <option value="$">SGD ($)</option>
+                                        <option value="£">SHP (£)</option>
+                                        <option value="Le">SLE (Le)</option>
+                                        <option value="Le">SLL (Le)</option>
+                                        <option value="S">SOS (S)</option>
+                                        <option value="$">SRD ($)</option>
+                                        <option value="£">SSP (£)</option>
+                                        <option value="Db">STN (Db)</option>
+                                        <option value="£">SYP (£)</option>
+                                        <option value="E">SZL (E)</option>
+                                        <option value="฿">THB (฿)</option>
+                                        <option value="SM">TJS (SM)</option>
+                                        <option value="T">TMT (T)</option>
+                                        <option value="د.ت">TND (د.ت)</option>
+                                        <option value="T$">TOP (T$)</option>
+                                        <option value="₺">TRY (₺)</option>
+                                        <option value="TT$">TTD (TT$)</option>
+                                        <option value="$">TVD ($)</option>
+                                        <option value="NT$">TWD (NT$)</option>
+                                        <option value="TSh">TZS (TSh)</option>
+                                        <option value="₴">UAH (₴)</option>
+                                        <option value="USh">UGX (USh)</option>
+                                        <option value="$U">UYU ($U)</option>
+                                        <option value="лв">UZS (лв)</option>
+                                        <option value="Bs.">VES (Bs.)</option>
+                                        <option value="₫">VND (₫)</option>
+                                        <option value="VT">VUV (VT)</option>
+                                        <option value="WS$">WST (WS$)</option>
+                                        <option value="FCFA">XAF (FCFA)</option>
+                                        <option value="$">XCD ($)</option>
+                                        <option value="SDR">XDR (SDR)</option>
+                                        <option value="CFA">XOF (CFA)</option>
+                                        <option value="₣">XPF (₣)</option>
+                                        <option value="﷼">YER (﷼)</option>
+                                        <option value="R">ZAR (R)</option>
+                                        <option value="ZK">ZMW (ZK)</option>
+                                        <option value="$">ZWL ($)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <label for="currencySymbol" class="form-label">Currency Symbol</label>
+                                    <input type="text" class="form-control modern-form-control" id="currencySymbol" 
+                                           placeholder="Currency symbol" readonly>
+                                    <div class="form-text">This will be automatically set based on your currency selection</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <label for="taxRate" class="form-label">Tax Rate (%)</label>
+                                    <input type="number" class="form-control modern-form-control" id="taxRate" 
+                                           placeholder="10" min="0" max="100" step="0.01">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <label for="address" class="form-label">Company Address</label>
+                                    <textarea class="form-control modern-form-control" id="address" rows="3" 
+                                              placeholder="Enter company address"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <label for="phone" class="form-label">Company Phone</label>
+                                    <input type="text" class="form-control modern-form-control" id="phone" 
+                                           placeholder="Enter phone number">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <label for="email" class="form-label">Company Email</label>
+                                    <input type="email" class="form-control modern-form-control" id="email" 
+                                           placeholder="Enter email address">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-3 mt-4">
+                            <button type="submit" class="btn btn-primary modern-btn">
+                                <i class="bi bi-check-circle me-2"></i>
+                                Save Settings
+                            </button>
+                            <button type="button" class="btn btn-secondary modern-btn" id="resetSettings">
+                                <i class="bi bi-arrow-clockwise me-2"></i>
+                                Reset to Default
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Password Change Section -->
+            <div class="modern-card mt-4">
+                <div class="modern-card-header">
+                    <h5 class="modern-card-title">
+                        <i class="bi bi-shield-lock me-2"></i>
+                        Change Password
+                    </h5>
+                </div>
+                <div class="modern-card-body">
+                    <form id="passwordChangeForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="currentPassword" class="form-label">Current Password</label>
+                                    <div class="password-input-group">
+                                        <input type="password" class="form-control modern-form-control" 
+                                               id="currentPassword" required>
+                                        <button type="button" class="password-toggle" id="toggleCurrentPassword">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="newPassword" class="form-label">New Password</label>
+                                    <div class="password-input-group">
+                                        <input type="password" class="form-control modern-form-control" 
+                                               id="newPassword" required minlength="6">
+                                        <button type="button" class="password-toggle" id="toggleNewPassword">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                                    <div class="password-input-group">
+                                        <input type="password" class="form-control modern-form-control" 
+                                               id="confirmPassword" required>
+                                        <button type="button" class="password-toggle" id="toggleConfirmPassword">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">&nbsp;</label>
+                                    <div>
+                                        <button type="submit" class="btn btn-primary modern-btn">
+                                            <i class="bi bi-key me-1"></i>
+                                            Change Password
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Settings Preview Card -->
+            <div class="modern-card mt-4">
+                <div class="modern-card-header">
+                    <h5 class="modern-card-title">
+                        <i class="bi bi-eye me-2"></i>
+                        Receipt Preview
+                    </h5>
+                </div>
+                <div class="modern-card-body">
+                    <div class="receipt-preview" id="receiptPreview">
+                        <div class="text-center mb-3">
+                            <h6 class="preview-company-name">INVENTORY MANAGEMENT SYSTEM</h6>
+                            <small class="preview-address">Company Address</small><br>
+                            <small class="preview-contact">Phone: 000-000-0000 | Email: info@company.com</small><br>
+                            <small class="preview-trn">TRN: 000000000000000</small>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <span>Sample Item</span>
+                            <span class="preview-currency">10.00</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between fw-bold">
+                            <span>TOTAL:</span>
+                            <span class="preview-currency">10.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Item Modal -->
+    <div class="modal fade" id="itemModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="itemModalTitle">Add New Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="itemForm">
+                        <input type="hidden" id="itemId">
+                        
+                        <div class="mb-3">
+                            <label for="itemNameInput" class="form-label">Item Name *</label>
+                            <input type="text" class="form-control" id="itemNameInput" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="itemDescriptionInput" class="form-label">Description</label>
+                            <textarea class="form-control" id="itemDescriptionInput" rows="2"></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="itemBarcodeInput" class="form-label">Barcode</label>
+                            <input type="text" class="form-control" id="itemBarcodeInput">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="itemCategoryInput" class="form-label">Category</label>
+                            <input type="text" class="form-control" id="itemCategoryInput">
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="itemPriceInput" class="form-label">Selling Price *</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text" id="sellingPriceCurrency">$</span>
+                                        <input type="number" class="form-control" id="itemPriceInput" 
+                                               step="0.01" min="0" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="itemCostInput" class="form-label">Cost Price</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text" id="costPriceCurrency">$</span>
+                                        <input type="number" class="form-control" id="itemCostInput" 
+                                               step="0.01" min="0">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="itemQuantityInput" class="form-label">Quantity *</label>
+                                    <input type="number" class="form-control" id="itemQuantityInput" 
+                                           min="0" readonly>
+                                    <div class="form-text">Stock can only be updated from the "Add Stock" tab</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="itemMinStockInput" class="form-label">Min Stock Level</label>
+                                    <input type="number" class="form-control" id="itemMinStockInput" 
+                                           min="0" value="10">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="itemSupplierInput" class="form-label">Supplier</label>
+                            <input type="text" class="form-control" id="itemSupplierInput">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveItemBtn">Save Item</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Receipt Modal -->
+    <div class="modal fade" id="receiptModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Receipt</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="receiptContent"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="printReceiptBtn">
+                        <i class="bi bi-printer"></i> Print Receipt
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div class="modal fade" id="orderDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="orderDetailsTitle">Order Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="orderDetailsContent">
+                        <div class="d-flex align-items-center justify-content-center" style="min-height: 200px;">
+                            <div class="loading-spinner"></div>
+                            <span class="ms-2 text-secondary">Loading order details...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="printOrderReceiptBtn">
+                        <i class="bi bi-printer"></i> Print Receipt
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.43/moment-timezone-with-data.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
