@@ -1279,23 +1279,6 @@ class InventoryApp {
         try {
             const order = await ipcRenderer.invoke('create-order', orderData);
             
-            // Create stock history records for each sold item
-            for (const cartItem of this.cart) {
-                const previousStock = cartItem.quantity;
-                const newStock = previousStock - cartItem.cart_quantity;
-                
-                await ipcRenderer.invoke('add-stock-history', 
-                    cartItem.id, 
-                    cartItem.name, 
-                    cartItem.barcode, 
-                    'out', 
-                    cartItem.cart_quantity, 
-                    previousStock, 
-                    newStock, 
-                    `Order #${order.order_number}`
-                );
-            }
-            
             this.showAlert('Order completed successfully!', 'success');
             
             // Generate and show receipt
@@ -2471,31 +2454,39 @@ class InventoryApp {
     }
 
     // Utility function to format dates consistently with local timezone
-    formatLocalDate(dateString, format = 'MMM DD, YYYY h:mm A') {
-        if (!dateString) return '';
+    formatLocalDate(dateInput, format = 'MMM DD, YYYY h:mm A') {
+        if (!dateInput) return '';
         
         try {
-            // Since SQLite stores timestamps in UTC, we need to explicitly parse as UTC first
-            // then convert to local timezone
             let momentObj;
             
-            // Check if the date string has timezone info
-            if (dateString.includes('Z') || dateString.includes('+') || dateString.includes('-', 10)) {
-                // Date has timezone info, parse normally
-                momentObj = moment(dateString);
+            // Handle Date objects
+            if (dateInput instanceof Date) {
+                momentObj = moment(dateInput);
             } else {
-                // Date doesn't have timezone info, assume it's UTC (from SQLite)
-                momentObj = moment.utc(dateString);
+                // Handle string inputs
+                const dateString = String(dateInput);
+                
+                // Check if the date string has timezone info
+                if (dateString.includes('Z') || dateString.includes('+') || dateString.includes('-', 10)) {
+                    // Date has timezone info, parse normally
+                    momentObj = moment(dateString);
+                } else {
+                    // Date doesn't have timezone info, assume it's UTC (from SQLite)
+                    momentObj = moment.utc(dateString);
+                }
             }
             
-            // Convert to local timezone
-            momentObj = momentObj.local();
+            // Convert to local timezone if needed
+            if (!momentObj.isLocal()) {
+                momentObj = momentObj.local();
+            }
             
             // Format the date
             return momentObj.format(format);
         } catch (error) {
-            console.error('Error formatting date:', error, 'Date string:', dateString);
-            return dateString;
+            console.error('Error formatting date:', error, 'Date input:', dateInput);
+            return String(dateInput);
         }
     }
 
@@ -2647,21 +2638,11 @@ class InventoryApp {
 
         try {
             for (const { item, addQuantity } of selectedItems) {
-                const previousStock = item.quantity;
-                const newStock = previousStock + addQuantity;
-                
-                // Update item stock in database
-                await ipcRenderer.invoke('update-item-stock', item.id, newStock);
-                
-                // Create stock history record
-                await ipcRenderer.invoke('add-stock-history', 
+                // Use atomic stock adjustment that handles both stock update and history in a transaction
+                await ipcRenderer.invoke('adjust-item-stock', 
                     item.id, 
-                    item.name, 
-                    item.barcode, 
-                    'in', 
                     addQuantity, 
-                    previousStock, 
-                    newStock, 
+                    'in', 
                     'Manual Stock Addition'
                 );
             }

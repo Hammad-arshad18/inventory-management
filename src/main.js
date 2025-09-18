@@ -216,6 +216,10 @@ class InventoryApp {
       return await this.database.updateItemStock(itemId, newQuantity);
     });
 
+    ipcMain.handle('adjust-item-stock', async (event, itemId, quantityChange, type, reference) => {
+      return await this.database.adjustItemStock(itemId, quantityChange, type, reference);
+    });
+
     // Authentication operations
     ipcMain.handle('authenticate-user', async (event, email, password) => {
       try {

@@ -259,47 +259,135 @@ class Database {
 
   async addItem(item) {
     return new Promise((resolve, reject) => {
-      const id = item.id || uuidv4();
-      const query = `
-        INSERT INTO items (id, name, description, barcode, category, price, cost, quantity, min_stock, supplier)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `;
+      // Validate required fields
+      if (!item.name || item.name.trim() === '') {
+        reject(new Error('Item name is required'));
+        return;
+      }
       
-      this.db.run(query, [
-        id, item.name, item.description, item.barcode, item.category,
-        item.price, item.cost, item.quantity || 1, item.min_stock, item.supplier
-      ], function(err) {
-        if (err) reject(err);
-        else resolve({ id, ...item });
+      if (item.price === undefined || item.price === null || isNaN(item.price)) {
+        reject(new Error('Valid item price is required'));
+        return;
+      }
+      
+      const id = item.id || uuidv4();
+      
+      const db = this.db; // Store reference to avoid 'this' context issues
+      
+      db.serialize(() => {
+        db.run('BEGIN TRANSACTION');
+        
+        const query = `
+          INSERT INTO items (id, name, description, barcode, category, price, cost, quantity, min_stock, supplier)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+        
+        db.run(query, [
+          id, 
+          item.name.trim(), 
+          item.description ? item.description.trim() : '', 
+          item.barcode ? item.barcode.trim() : '', 
+          item.category ? item.category.trim() : '',
+          parseFloat(item.price) || 0, 
+          parseFloat(item.cost) || 0, 
+          parseInt(item.quantity) || 1, 
+          parseInt(item.min_stock) || 0, 
+          item.supplier ? item.supplier.trim() : ''
+        ], function(err) {
+          if (err) {
+            db.run('ROLLBACK');
+            reject(err);
+          } else {
+            db.run('COMMIT');
+            resolve({ id, ...item, quantity: parseInt(item.quantity) || 1 });
+          }
+        });
       });
     });
   }
 
   async updateItem(id, item) {
     return new Promise((resolve, reject) => {
-      const query = `
-        UPDATE items 
-        SET name = ?, description = ?, barcode = ?, category = ?, 
-            price = ?, cost = ?, quantity = ?, min_stock = ?, supplier = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = ?
-      `;
+      // Validate required fields
+      if (!item.name || item.name.trim() === '') {
+        reject(new Error('Item name is required'));
+        return;
+      }
       
-      this.db.run(query, [
-        item.name, item.description, item.barcode, item.category,
-        item.price, item.cost, item.quantity, item.min_stock, item.supplier, id
-      ], function(err) {
-        if (err) reject(err);
-        else resolve({ id, ...item });
+      if (item.price === undefined || item.price === null || isNaN(item.price)) {
+        reject(new Error('Valid item price is required'));
+        return;
+      }
+      
+      const db = this.db; // Store reference to avoid 'this' context issues
+      
+      db.serialize(() => {
+        db.run('BEGIN TRANSACTION');
+        
+        const query = `
+          UPDATE items 
+          SET name = ?, description = ?, barcode = ?, category = ?, 
+              price = ?, cost = ?, quantity = ?, min_stock = ?, supplier = ?,
+              updated_at = CURRENT_TIMESTAMP
+          WHERE id = ?
+        `;
+        
+        db.run(query, [
+          item.name.trim(), 
+          item.description ? item.description.trim() : '', 
+          item.barcode ? item.barcode.trim() : '', 
+          item.category ? item.category.trim() : '',
+          parseFloat(item.price) || 0, 
+          parseFloat(item.cost) || 0, 
+          parseInt(item.quantity) || 1, 
+          parseInt(item.min_stock) || 0, 
+          item.supplier ? item.supplier.trim() : '', 
+          id
+        ], function(err) {
+          if (err) {
+            db.run('ROLLBACK');
+            reject(err);
+          } else {
+            db.run('COMMIT');
+            resolve({ id, ...item });
+          }
+        });
       });
     });
   }
 
   async deleteItem(id) {
     return new Promise((resolve, reject) => {
-      this.db.run('DELETE FROM items WHERE id = ?', [id], function(err) {
-        if (err) reject(err);
-        else resolve({ deleted: this.changes > 0 });
+      const db = this.db; // Store reference to avoid 'this' context issues
+      
+      db.serialize(() => {
+        db.run('BEGIN TRANSACTION');
+        
+        // Check if item exists in any orders first
+        db.get('SELECT COUNT(*) as count FROM order_items WHERE item_id = ?', [id], (err, result) => {
+          if (err) {
+            db.run('ROLLBACK');
+            reject(err);
+            return;
+          }
+          
+          if (result.count > 0) {
+            db.run('ROLLBACK');
+            reject(new Error('Cannot delete item that exists in order history. Consider marking it as inactive instead.'));
+            return;
+          }
+          
+          // Delete the item
+          db.run('DELETE FROM items WHERE id = ?', [id], function(err) {
+            if (err) {
+              db.run('ROLLBACK');
+              reject(err);
+            } else {
+              db.run('COMMIT');
+              resolve({ deleted: this.changes > 0 });
+            }
+          });
+        });
       });
     });
   }
@@ -318,9 +406,10 @@ class Database {
     return new Promise((resolve, reject) => {
       const orderId = uuidv4();
       const orderNumber = 'ORD-' + Date.now();
+      const db = this.db; // Store reference to avoid 'this' context issues
       
-      this.db.serialize(() => {
-        this.db.run('BEGIN TRANSACTION');
+      db.serialize(() => {
+        db.run('BEGIN TRANSACTION');
         
         // Insert order
         const orderQuery = `
@@ -329,13 +418,13 @@ class Database {
           VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `;
         
-        this.db.run(orderQuery, [
+        db.run(orderQuery, [
           orderId, orderNumber, orderData.customer_name, orderData.customer_phone,
           orderData.total_amount, orderData.tax_amount || 0, 
           orderData.discount_amount || 0, orderData.payment_method || 'cash'
         ], (err) => {
           if (err) {
-            this.db.run('ROLLBACK');
+            db.run('ROLLBACK');
             reject(err);
             return;
           }
@@ -345,7 +434,7 @@ class Database {
           const orderItems = orderData.items || [];
           
           if (orderItems.length === 0) {
-            this.db.run('COMMIT');
+            db.run('COMMIT');
             resolve({ id: orderId, order_number: orderNumber, ...orderData });
             return;
           }
@@ -356,30 +445,77 @@ class Database {
               VALUES (?, ?, ?, ?, ?, ?)
             `;
             
-            this.db.run(itemQuery, [
+            db.run(itemQuery, [
               uuidv4(), orderId, item.item_id, item.quantity, 
               item.unit_price, item.total_price
             ], (err) => {
               if (err) {
-                this.db.run('ROLLBACK');
+                db.run('ROLLBACK');
                 reject(err);
                 return;
               }
               
-              // Update item quantity
-              this.db.run('UPDATE items SET quantity = quantity - ? WHERE id = ?', 
-                [item.quantity, item.item_id], (err) => {
+              // Get current item details for stock history
+              db.get('SELECT name, barcode, quantity FROM items WHERE id = ?', [item.item_id], (err, itemDetails) => {
                 if (err) {
-                  this.db.run('ROLLBACK');
+                  db.run('ROLLBACK');
                   reject(err);
                   return;
                 }
                 
-                itemsProcessed++;
-                if (itemsProcessed === orderItems.length) {
-                  this.db.run('COMMIT');
-                  resolve({ id: orderId, order_number: orderNumber, ...orderData });
+                if (!itemDetails) {
+                  db.run('ROLLBACK');
+                  reject(new Error(`Item with ID ${item.item_id} not found`));
+                  return;
                 }
+                
+                const previousStock = itemDetails.quantity;
+                const newStock = previousStock - item.quantity;
+                
+                if (newStock < 0) {
+                  db.run('ROLLBACK');
+                  reject(new Error(`Insufficient stock for item: ${itemDetails.name}. Available: ${previousStock}, Required: ${item.quantity}`));
+                  return;
+                }
+                
+                // Update item quantity
+                db.run('UPDATE items SET quantity = quantity - ? WHERE id = ?', 
+                  [item.quantity, item.item_id], (err) => {
+                  if (err) {
+                    db.run('ROLLBACK');
+                    reject(err);
+                    return;
+                  }
+                  
+                  // Add stock history record
+                  const historyQuery = `
+                    INSERT INTO stock_history (item_id, item_name, barcode, type, quantity, previous_stock, new_stock, reference)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                  `;
+                  
+                  db.run(historyQuery, [
+                    item.item_id,
+                    itemDetails.name,
+                    itemDetails.barcode,
+                    'out',
+                    item.quantity,
+                    previousStock,
+                    newStock,
+                    `Order #${orderNumber}`
+                  ], (err) => {
+                    if (err) {
+                      db.run('ROLLBACK');
+                      reject(err);
+                      return;
+                    }
+                    
+                    itemsProcessed++;
+                    if (itemsProcessed === orderItems.length) {
+                      db.run('COMMIT');
+                      resolve({ id: orderId, order_number: orderNumber, ...orderData });
+                    }
+                  });
+                });
               });
             });
           });
@@ -567,15 +703,99 @@ class Database {
 
   async updateItemStock(itemId, newQuantity) {
     return new Promise((resolve, reject) => {
-      const query = `UPDATE items SET quantity = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
+      const db = this.db; // Store reference to avoid 'this' context issues
       
-      this.db.run(query, [newQuantity, itemId], function(err) {
-        if (err) {
-          console.error('Error updating item stock:', err);
-          reject(err);
-        } else {
-          resolve(this.changes);
-        }
+      db.serialize(() => {
+        db.run('BEGIN TRANSACTION');
+        
+        const query = `UPDATE items SET quantity = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
+        
+        db.run(query, [newQuantity, itemId], function(err) {
+          if (err) {
+            db.run('ROLLBACK');
+            console.error('Error updating item stock:', err);
+            reject(err);
+          } else {
+            db.run('COMMIT');
+            resolve(this.changes);
+          }
+        });
+      });
+    });
+  }
+
+  // Atomic stock adjustment with history tracking
+  async adjustItemStock(itemId, quantityChange, type, reference = null) {
+    return new Promise((resolve, reject) => {
+      const db = this.db; // Store reference to avoid 'this' context issues
+      
+      db.serialize(() => {
+        db.run('BEGIN TRANSACTION');
+        
+        // First get current item details
+        const getItemQuery = `SELECT id, name, barcode, quantity FROM items WHERE id = ?`;
+        db.get(getItemQuery, [itemId], (err, item) => {
+          if (err) {
+            db.run('ROLLBACK');
+            reject(err);
+            return;
+          }
+          
+          if (!item) {
+            db.run('ROLLBACK');
+            reject(new Error('Item not found'));
+            return;
+          }
+          
+          const previousStock = item.quantity;
+          const newStock = previousStock + quantityChange;
+          
+          if (newStock < 0) {
+            db.run('ROLLBACK');
+            reject(new Error('Insufficient stock. Cannot reduce quantity below zero.'));
+            return;
+          }
+          
+          // Update item stock
+          const updateQuery = `UPDATE items SET quantity = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
+          db.run(updateQuery, [newStock, itemId], (err) => {
+            if (err) {
+              db.run('ROLLBACK');
+              reject(err);
+              return;
+            }
+            
+            // Add stock history record
+            const historyQuery = `
+              INSERT INTO stock_history (item_id, item_name, barcode, type, quantity, previous_stock, new_stock, reference)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            `;
+            
+            db.run(historyQuery, [
+              itemId, 
+              item.name, 
+              item.barcode, 
+              type, 
+              Math.abs(quantityChange), 
+              previousStock, 
+              newStock, 
+              reference
+            ], (err) => {
+              if (err) {
+                db.run('ROLLBACK');
+                reject(err);
+              } else {
+                db.run('COMMIT');
+                resolve({
+                  itemId,
+                  previousStock,
+                  newStock,
+                  quantityChange
+                });
+              }
+            });
+          });
+        });
       });
     });
   }
